@@ -57,6 +57,55 @@ class UserController extends Controller {
       ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
     }
   }
+  /**
+   * 修改用户信息
+   */
+  @Post('/v1/update_user.do')
+  async updateUser() {
+    const { ctx, service, app } = this;
+    // 定义参数校验规则
+    const rules = {
+      _id: { type: 'string', required: true },
+      role: { type: 'integer', required: true },
+      name: { type: 'string', required: false },
+      password: { type: 'string', required: false },
+    };
+    // 参数校验
+    const valiErrors = app.validator.validate(rules, ctx.request.body);
+    // 参数校验未通过
+    if (valiErrors) {
+      ctx.helper.fail({ ctx, code: 422, res: valiErrors });
+      return;
+    }
+    try {
+      await service.user.updateUser();
+    } catch (error) {
+      ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+    }
+  }
+  /**
+   * 删除用户
+   */
+  @Post('/v1/delete_user.do')
+  async deleteUser() {
+    const { ctx, service, app } = this;
+    // 定义参数校验规则
+    const rules = {
+      _id: { type: 'string', required: true },
+    };
+    // 参数校验
+    const valiErrors = app.validator.validate(rules, ctx.request.body);
+    // 参数校验未通过
+    if (valiErrors) {
+      ctx.helper.fail({ ctx, code: 422, res: valiErrors });
+      return;
+    }
+    try {
+      await service.user.deleteUser();
+    } catch (error) {
+      ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+    }
+  }
 }
 
 module.exports = UserController;
