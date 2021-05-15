@@ -57,7 +57,7 @@ class UserService extends Service {
         }
       )
         .skip(index)
-        .limit(limit);
+        .limit(Number(limit));
       // 根据条件查询总数
       const total = await ctx.model.User.find({
         isDelete: { $ne: 1 },
@@ -96,7 +96,6 @@ class UserService extends Service {
         },
         { new: true }
       );
-      console.log(123, isRepeat, _id);
       if (isRepeat) {
         ctx.helper.success({
           ctx,

@@ -1,3 +1,6 @@
+/**
+ * 用户
+ */
 'use strict';
 module.exports = (app) => {
   const mongoose = app.mongoose;
