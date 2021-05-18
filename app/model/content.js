@@ -18,8 +18,8 @@ module.exports = (app) => {
     seoKeywords: { type: String }, // seo-Keywords
     content: { type: String }, // 内容
     baseReadNum: { type: Number }, // 基础阅读量
-    realReadNum: { type: Number }, // 真实阅读量
-    totalReadNum: { type: Number }, // 总阅读量
+    realReadNum: { type: Number, default: 0 }, // 真实阅读量
+    totalReadNum: { type: Number, default: 0 }, // 总阅读量
     isTop: { type: Number }, // 是否置顶  1，置顶 0，不置顶
     isRecommend: { type: Number }, // 是否推荐 1，推荐 0，不推荐
     sort: { type: Number, default: 0 }, // 排序 越大越靠前
@@ -28,7 +28,7 @@ module.exports = (app) => {
     createdBy: { type: String }, // 创建人
     updateTime: { type: String }, // 更新时间
     updateBy: { type: String }, // 更新人
-    idDelete: { type: Number, default: 0 }, // 是否已删除 （1：是 0：否）
+    isDelete: { type: Number, default: 0 }, // 是否已删除 （1：是 0：否）
   });
   return mongoose.model('Content', contentSchema, 'content'); //返回model
 };
