@@ -32,8 +32,8 @@ class ClassifyService extends Service {
       }
       // 新增一级分类
       if (pid === '1') {
-        await ctx.model.Classify.create(ctx.request.body);
-        await ctx.model.ClassifyCode.create({ code });
+        const data = await ctx.model.Classify.create(ctx.request.body);
+        await ctx.model.ClassifyCode.create({ code, classifyId: data._id });
         ctx.helper.success({
           ctx,
           code: 200,
@@ -53,15 +53,19 @@ class ClassifyService extends Service {
       }
       ctx.request.body.children = [];
       const addChild = ctx.request.body;
-      await ctx.model.Classify.updateOne(
-        { _id: pid },
+      const newData = await ctx.model.Classify.findByIdAndUpdate(
+        pid,
         {
           $push: {
             children: addChild,
           },
-        }
+        },
+        { new: true }
       );
-      await ctx.model.ClassifyCode.create({ code });
+      await ctx.model.ClassifyCode.create({
+        code,
+        classifyId: newData.children[newData.children.length - 1]._id,
+      });
       ctx.helper.success({
         ctx,
         code: 200,
@@ -83,7 +87,7 @@ class ClassifyService extends Service {
       if (_id === '1') {
         classifyList = await ctx.model.Classify.find({
           pid: _id,
-        });
+        }).sort({ sort: -1 });
         ctx.helper.success({
           ctx,
           code: 200,
@@ -94,7 +98,7 @@ class ClassifyService extends Service {
       classifyList = await ctx.model.Classify.find({
         isDelete: 0,
         'children._id': _id,
-      }); // 条件查询
+      }).sort({ sort: -1 }); // 条件查询
       ctx.helper.success({
         ctx,
         code: 200,
@@ -114,6 +118,20 @@ class ClassifyService extends Service {
     const { ctx } = this;
     try {
       const parmasData = ctx.request.body;
+      let isRepeat = await ctx.model.ClassifyCode.findOne({
+        code: parmasData.code,
+        isDelete: 0,
+        classifyId: { $ne: parmasData._id },
+      }); // 条件查询
+      if (isRepeat) {
+        ctx.helper.fail({
+          ctx,
+          code: 422,
+          res: {},
+          detailMessage: '分类code已存在',
+        });
+        return;
+      }
       await ctx.model.ClassifyCode.findOneAndUpdate(
         {
           code: parmasData.code,
@@ -238,6 +256,22 @@ class ClassifyService extends Service {
     const parmasData = ctx.request.body;
     try {
       let classifyList;
+      if (parmasData.status === 0) {
+        const menuList = await ctx.model.Content.find({
+          classifyId: parmasData._id,
+          status: 1,
+          isDelete: 0,
+        });
+        if (menuList.length) {
+          ctx.helper.fail({
+            ctx,
+            code: 422,
+            res: {},
+            detailMessage: '该分类下有已发布的内容，请先撤回',
+          });
+          return;
+        }
+      }
       if (parmasData.level == 1) {
         classifyList = await ctx.model.Classify.findOneAndUpdate(
           {
@@ -300,18 +334,21 @@ class ClassifyService extends Service {
     try {
       let listOne = await ctx.model.Classify.find(
         {
-          name,
+          isDelete: { $ne: 1 }, // $ne 不等于
+          name: { $regex: name },
         },
-        { children: 0 }
+        { children: 0 } // 不返回children字段
       );
       let listTwo = await ctx.model.Classify.find({
-        'children.name': name,
+        'children.name': { $regex: name },
+        'children.isDelete': { $ne: 1 }, // $ne 不等于
       });
       let classifyList = [];
       listTwo.forEach((item) => {
         console.log(item);
-        let data = item.children.filter((item) => item.name === name);
-
+        let data = item.children.filter(
+          (item) => item.name.indexOf(name) !== -1
+        );
         classifyList = classifyList.concat(data);
       });
       classifyList = classifyList.concat(listOne);
