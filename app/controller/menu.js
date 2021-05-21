@@ -129,7 +129,7 @@ class MenuController extends Controller {
     }
   }
   /**
-   * 根据导航名称查询导航详情
+   * 根据导航名称查询导航
    */
   @Get('/v1/find_menu_by_name.do')
   async findMenuByName() {

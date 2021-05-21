@@ -15,6 +15,7 @@
     "egg-scripts": "^2.11.0",
     "egg-shell-decorators": "^1.6.0",
     "egg-validate": "^2.0.2",
+    "mongoose-mpath": "^2.4.7",
     "pump": "^3.0.0",
     "silly-datetime": "^0.1.2"
   },

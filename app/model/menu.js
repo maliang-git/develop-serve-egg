@@ -16,7 +16,7 @@ module.exports = (app) => {
     routeParmas: { type: String }, // 路由参数
     url: { type: String }, // 外链地址
     pagePath: { type: String }, // 页面组件路径
-    customPath: { type: String }, // 自定义组件路径
+    customPath: { type: String }, // 自定义组件路径(用于启动前台项目时获取页面)
     sort: { type: Number }, // 排序 （越大越靠前）
     status: { type: Number, default: 1 }, // 状态 （1，启用 0，禁用）
     remark: { type: String }, // 备注描述

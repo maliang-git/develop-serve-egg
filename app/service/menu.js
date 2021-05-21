@@ -230,7 +230,7 @@ class MenuService extends Service {
     }
   }
   /**
-   * 根据导航名称查询导航详情
+   * 根据导航名称查询导航
    */
   async findMenuByName() {
     const { ctx } = this;
