@@ -17,6 +17,7 @@ class CategoryController extends Controller {
     const rules = {
       pid: { type: 'string', required: false },
       name: { type: 'string', required: true },
+      picUrl: { type: 'string', required: false },
       code: { type: 'string', required: true },
       sort: { type: 'integer', required: true },
       status: { type: 'integer', required: true },
@@ -70,6 +71,7 @@ class CategoryController extends Controller {
     const rules = {
       _id: { type: 'string', required: true },
       name: { type: 'string', required: true },
+      picUrl: { type: 'string', required: false },
       code: { type: 'string', required: true },
       sort: { type: 'integer', required: true },
       status: { type: 'integer', required: true },

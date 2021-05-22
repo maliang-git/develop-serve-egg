@@ -157,6 +157,7 @@ class ClassifyService extends Service {
           $set: {
             name: params.name,
             code: params.code,
+            picUrl: params.picUrl,
             sort: params.sort,
             status: params.status,
             remark: params.remark,

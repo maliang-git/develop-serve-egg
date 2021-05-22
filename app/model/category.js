@@ -9,6 +9,7 @@ module.exports = (app) => {
   const categorySchema = new Schema({
     name: { type: String }, // 分类名称
     code: { type: String }, // 分类编码
+    picUrl: { type: String }, // 分类图片
     sort: { type: Number }, // 排序 （越小越靠前）
     status: { type: Number, default: 1 }, // 状态 （1，启用 0，禁用）
     remark: { type: String }, // 备注描述
