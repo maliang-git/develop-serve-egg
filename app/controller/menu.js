@@ -40,7 +40,7 @@ class MenuController extends Controller {
   /**
    * 查询所有嵌套导航
    */
-  @Get('/v1/find_menu.do')
+  @Get('/v1/find_menu_tree.do')
   async findMenu() {
     const { ctx, service, app } = this;
     try {

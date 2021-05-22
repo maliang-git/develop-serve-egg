@@ -252,5 +252,63 @@ class MenuService extends Service {
       ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
     }
   }
+  /**
+   * 查询所有启用状态的导航树
+   */
+  async findMenuTreeEnable() {
+    const { ctx } = this;
+    try {
+      let menuList = await ctx.model.Menu.find({
+        isDelete: 0,
+        status: 1,
+      }).sort({ sort: -1 });
+      let menuTree = [];
+      let nweTree = [];
+      if (menuList.length > 0) {
+        menuTree = menuList.filter((item) => item.pid === '-1');
+        nweTree = JSON.parse(JSON.stringify(menuTree));
+        if (menuTree.length) {
+          menuTree.forEach((item, index) => {
+            const children = menuList.filter(
+              (key) => key.pid === String(item._id)
+            );
+            nweTree[index]['children'] = JSON.parse(JSON.stringify(children));
+          });
+        }
+      }
+
+      ctx.helper.success({
+        ctx,
+        code: 200,
+        res: nweTree || [],
+      });
+      return;
+    } catch (err) {
+      console.log(132, err);
+      // ctx.logger.error(err);
+      ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+    }
+  }
+  /**
+   * 查询所有状态的导航-非树形
+   */
+  async findAllMenu() {
+    const { ctx } = this;
+    try {
+      let menuList = await ctx.model.Menu.find({
+        isDelete: 0,
+      }).sort({ sort: -1 });
+      ctx.helper.success({
+        ctx,
+        code: 200,
+        res: menuList || [],
+      });
+      return;
+    } catch (err) {
+      console.log(132, err);
+      // ctx.logger.error(err);
+      ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+    }
+  }
 }
 module.exports = MenuService;

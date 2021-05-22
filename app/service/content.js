@@ -6,7 +6,40 @@ class contentService extends Service {
    */
   async addContent() {
     const { ctx } = this;
+    const { contentCode } = ctx.request.body;
     try {
+      if (contentCode) {
+        let isRepeat = await ctx.model.Content.findOne({
+          contentCode,
+          isDelete: 0,
+        }); // 条件查询
+        if (isRepeat) {
+          ctx.helper.fail({
+            ctx,
+            code: 422,
+            res: {},
+            detailMessage: '内容编号已存在',
+          });
+          return;
+        }
+      } else {
+        // 查询当前系统生成的最大编号
+        let isHaveData = await ctx.model.Content.find({
+          isDelete: 0,
+          contentCode: { $regex: 'CONTENT_' }, // 模糊匹配
+        })
+          .sort({ contentCode: -1 })
+          .skip(0)
+          .limit(1);
+        // 没有则初始生成
+        if (!isHaveData.length) {
+          ctx.request.body.contentCode = 'CONTENT_00001';
+        } else {
+          // 有则+1
+          const codeArr = isHaveData[0].contentCode.split('_');
+          ctx.request.body.contentCode = codeArr[0] + (codeArr[1] + 1);
+        }
+      }
       ctx.request.body.createdTime = ctx.helper.dateReset(
         new Date(),
         'yyyy-MM-dd hh:mm:ss'
@@ -101,6 +134,39 @@ class contentService extends Service {
     const { ctx } = this;
     const reqData = ctx.request.body;
     try {
+      if (reqData.contentCode) {
+        let isRepeat = await ctx.model.Content.findOne({
+          contentCode: reqData.contentCode,
+          isDelete: 0,
+          _id: { $ne: reqData._id },
+        }); // 条件查询
+        if (isRepeat) {
+          ctx.helper.fail({
+            ctx,
+            code: 422,
+            res: {},
+            detailMessage: '内容编号已存在',
+          });
+          return;
+        }
+      } else {
+        // 查询当前系统生成的最大编号
+        let isHaveData = await ctx.model.Content.find({
+          isDelete: 0,
+          contentCode: { $regex: 'CONTENT_' }, // 模糊匹配
+        })
+          .sort({ contentCode: -1 })
+          .skip(0)
+          .limit(1);
+        // 没有则初始生成
+        if (!isHaveData.length) {
+          ctx.request.body.contentCode = 'CONTENT_00001';
+        } else {
+          // 有则+1
+          const codeArr = isHaveData[0].contentCode.split('_');
+          ctx.request.body.contentCode = codeArr[0] + (codeArr[1] + 1);
+        }
+      }
       const result = await ctx.model.Content.findById(reqData._id);
       if (!result) {
         ctx.helper.fail({ ctx, code: 500, res: '未找到该内容' });
@@ -115,6 +181,8 @@ class contentService extends Service {
           classifyCode: reqData.classifyCode,
           classifyName: reqData.classifyName,
           classifyId: reqData.classifyId,
+          codeType: reqData.codeType,
+          contentCode: reqData.contentCode,
           name: reqData.name,
           subName: reqData.subName,
           abstract: reqData.abstract,

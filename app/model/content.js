@@ -9,6 +9,8 @@ module.exports = (app) => {
     classifyName: { type: String }, // 所属分类名称
     classifyCode: { type: String }, // 所属分类CODE
     classifyId: { type: String }, // 所属分类id
+    codeType: { type: Number }, // 内容code生成方式 （1：系统生成 2：自定义）
+    contentCode: { type: String }, //  自定义的内容CODE
     name: { type: String }, // 内容标题
     subName: { type: String }, // 内容副标题
     abstract: { type: String }, // 内容摘要

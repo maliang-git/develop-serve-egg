@@ -4,7 +4,6 @@
  */
 const Controller = require('egg').Controller;
 const { Get, Prefix, Post } = require('egg-shell-decorators');
-const MpathPlugin = require('mongoose-mpath');
 @Prefix('/yk/category')
 class CategoryController extends Controller {
   /**

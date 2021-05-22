@@ -16,6 +16,8 @@ class contentController extends Controller {
       classifyName: { type: 'string', required: true }, // 所属分类名称
       classifyCode: { type: 'string', required: true }, // 所属分类CODE
       classifyId: { type: 'string', required: true }, // 所属分类id
+      codeType: { type: 'integer', required: true }, // 内容code生成方式 （1：系统生成 2：自定义）
+      contentCode: { type: 'string', required: false }, // 自定义的内容CODE
       name: { type: 'string', required: true }, // 内容标题
       subName: { type: 'string', required: true }, // 内容副标题
       abstract: { type: 'string', required: true }, // 内容摘要
@@ -106,6 +108,8 @@ class contentController extends Controller {
       classifyName: { type: 'string', required: true }, // 所属分类名称
       classifyCode: { type: 'string', required: true }, // 所属分类CODE
       classifyId: { type: 'string', required: true }, // 所属分类id
+      codeType: { type: 'integer', required: true }, // 内容code生成方式 （1：系统生成 2：自定义）
+      contentCode: { type: 'string', required: false }, // 自定义的内容CODE
       name: { type: 'string', required: true }, // 内容标题
       subName: { type: 'string', required: true }, // 内容副标题
       abstract: { type: 'string', required: true }, // 内容摘要

@@ -107,16 +107,21 @@ class ClassifyService extends Service {
           isDelete: 0,
         });
       }
-      const filters =
-        status == 0 || status == 1 ? { isDelete: 0, status } : { isDelete: 0 };
-      const treeNode = await parentNode.getChildrenTree({
-        filters, //  过滤
-        // fields: '_id name', // 字段选择
-        options: { sort: { sort: -1 } }, //  排序
-        // populate: 'repos',
-        // minLevel: 2,
-        // maxLevel: 4,
-      });
+      let treeNode = [];
+      if (parentNode) {
+        const filters =
+          status == 0 || status == 1
+            ? { isDelete: 0, status }
+            : { isDelete: 0 };
+        treeNode = await parentNode.getChildrenTree({
+          filters, //  过滤
+          // fields: '_id name', // 字段选择
+          options: { sort: { sort: -1 } }, //  排序
+          // populate: 'repos',
+          // minLevel: 2,
+          // maxLevel: 4,
+        });
+      }
       ctx.helper.success({
         ctx,
         code: 200,
