@@ -13,8 +13,6 @@ class contentController extends Controller {
     const { ctx, service, app } = this;
     // 定义参数校验规则
     const rules = {
-      classifyName: { type: 'string', required: true }, // 所属分类名称
-      classifyCode: { type: 'string', required: true }, // 所属分类CODE
       classifyId: { type: 'string', required: true }, // 所属分类id
       codeType: { type: 'integer', required: true }, // 内容code生成方式 （1：系统生成 2：自定义）
       contentCode: { type: 'string', required: false }, // 自定义的内容CODE
@@ -105,8 +103,6 @@ class contentController extends Controller {
     // 定义参数校验规则
     const rules = {
       _id: { type: 'string', required: true },
-      classifyName: { type: 'string', required: true }, // 所属分类名称
-      classifyCode: { type: 'string', required: true }, // 所属分类CODE
       classifyId: { type: 'string', required: true }, // 所属分类id
       codeType: { type: 'integer', required: true }, // 内容code生成方式 （1：系统生成 2：自定义）
       contentCode: { type: 'string', required: false }, // 自定义的内容CODE

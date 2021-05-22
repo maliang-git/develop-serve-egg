@@ -6,9 +6,19 @@ class contentService extends Service {
    */
   async addContent() {
     const { ctx } = this;
-    const { contentCode } = ctx.request.body;
+    const { codeType, contentCode } = ctx.request.body;
     try {
-      if (contentCode) {
+      // 自定义内容CODE
+      if (codeType === 0) {
+        if (contentCode.indexOf('NO') === 0) {
+          ctx.helper.fail({
+            ctx,
+            code: 422,
+            res: {},
+            detailMessage: '自定义内容编号请勿以NO开头',
+          });
+          return;
+        }
         let isRepeat = await ctx.model.Content.findOne({
           contentCode,
           isDelete: 0,
@@ -23,22 +33,16 @@ class contentService extends Service {
           return;
         }
       } else {
-        // 查询当前系统生成的最大编号
-        let isHaveData = await ctx.model.Content.find({
-          isDelete: 0,
-          contentCode: { $regex: 'CONTENT_' }, // 模糊匹配
-        })
-          .sort({ contentCode: -1 })
-          .skip(0)
-          .limit(1);
-        // 没有则初始生成
-        if (!isHaveData.length) {
-          ctx.request.body.contentCode = 'CONTENT_00001';
-        } else {
-          // 有则+1
-          const codeArr = isHaveData[0].contentCode.split('_');
-          ctx.request.body.contentCode = codeArr[0] + (codeArr[1] + 1);
-        }
+        //  系统自增内容CODE;
+        let { count } = await ctx.model.Counter.findOneAndUpdate(
+          { _id: 'contentCountGenerator' }, // 这里的_id值以后用的地方都不要改的， 因为我们始终查询的是一个sequence
+          { $inc: { count: 1 } }, // 这里的$inc是原子操作，所以不要担心锁竞争的情况
+          {
+            new: true,
+            upsert: true,
+          }
+        );
+        ctx.request.body.contentCode = `NO_CONTENT_${count}`;
       }
       ctx.request.body.createdTime = ctx.helper.dateReset(
         new Date(),
@@ -81,6 +85,10 @@ class contentService extends Service {
       }
       // 分页、条件查询
       const result = await ctx.model.Content.find(term)
+        .populate({
+          path: 'classifyId',
+          select: 'name code _id path',
+        })
         .skip(index)
         .limit(Number(limit));
       // 根据条件查询总数
@@ -111,6 +119,9 @@ class contentService extends Service {
       const result = await ctx.model.Content.findOne({
         _id,
         isDelete: 0,
+      }).populate({
+        path: 'classifyId',
+        select: 'name code _id path',
       });
       if (result) {
         ctx.helper.success({
@@ -134,7 +145,17 @@ class contentService extends Service {
     const { ctx } = this;
     const reqData = ctx.request.body;
     try {
-      if (reqData.contentCode) {
+      // 自定义code
+      if (reqData.codeType === 0) {
+        if (reqData.contentCode.indexOf('NO') === 0) {
+          ctx.helper.fail({
+            ctx,
+            code: 422,
+            res: {},
+            detailMessage: '自定义内容编号请勿以NO开头',
+          });
+          return;
+        }
         let isRepeat = await ctx.model.Content.findOne({
           contentCode: reqData.contentCode,
           isDelete: 0,
@@ -150,22 +171,16 @@ class contentService extends Service {
           return;
         }
       } else {
-        // 查询当前系统生成的最大编号
-        let isHaveData = await ctx.model.Content.find({
-          isDelete: 0,
-          contentCode: { $regex: 'CONTENT_' }, // 模糊匹配
-        })
-          .sort({ contentCode: -1 })
-          .skip(0)
-          .limit(1);
-        // 没有则初始生成
-        if (!isHaveData.length) {
-          ctx.request.body.contentCode = 'CONTENT_00001';
-        } else {
-          // 有则+1
-          const codeArr = isHaveData[0].contentCode.split('_');
-          ctx.request.body.contentCode = codeArr[0] + (codeArr[1] + 1);
-        }
+        //  系统自增内容CODE;
+        let { count } = await ctx.model.Counter.findOneAndUpdate(
+          { _id: 'contentCountGenerator' }, // 这里的_id值以后用的地方都不要改的， 因为我们始终查询的是一个sequence
+          { $inc: { count: 1 } }, // 这里的$inc是原子操作，所以不要担心锁竞争的情况
+          {
+            new: true,
+            upsert: true,
+          }
+        );
+        ctx.request.body.contentCode = `NO_CONTENT_${count}`;
       }
       const result = await ctx.model.Content.findById(reqData._id);
       if (!result) {
@@ -255,6 +270,33 @@ class contentService extends Service {
           status,
         },
       });
+      ctx.helper.success({
+        ctx,
+        code: 200,
+        res: result,
+      });
+    } catch (err) {
+      // ctx.logger.error(err);
+      console.log(123, err);
+      ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+    }
+  }
+  /**
+   * 根据内容code查询内容详情
+   */
+  async findContentByCode() {
+    const { ctx } = this;
+    const { contentCode } = ctx.request.query;
+    try {
+      const result = await ctx.model.Content.findOne({
+        contentCode,
+        isDelete: 0,
+        status: 1,
+      });
+      if (!result) {
+        ctx.helper.fail({ ctx, code: 500, res: '未找到该内容' });
+        return;
+      }
       ctx.helper.success({
         ctx,
         code: 200,

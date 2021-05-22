@@ -3,7 +3,7 @@
  * 导航管理-前台相关不需要鉴权的接口
  */
 const Controller = require('egg').Controller;
-const { Get, Prefix, Post } = require('egg-shell-decorators');
+const { Get, Prefix } = require('egg-shell-decorators');
 
 @Prefix('/nk/menu')
 class NkMenuController extends Controller {
