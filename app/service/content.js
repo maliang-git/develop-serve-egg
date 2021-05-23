@@ -215,6 +215,7 @@ class contentService extends Service {
           baseReadNum: reqData.baseReadNum,
           totalReadNum: result.realReadNum + reqData.baseReadNum,
           isTop: reqData.isTop,
+          status: reqData.status,
           isRecommend: reqData.isRecommend,
           sort: reqData.sort,
           updateTime,
@@ -319,16 +320,26 @@ class contentService extends Service {
    */
   async findContentByCategoryCode() {
     const { ctx } = this;
-    const { classifyCode } = ctx.request.query;
+    const { classifyCode, page, limit, isRecommend, isTop } = ctx.request.query;
+    const index = (page - 1) * limit;
     try {
+      let match = { status: 1, isDelete: 0 };
+      if (isRecommend) {
+        match.isRecommend = 1;
+      }
+      if (isTop) {
+        match.isTop = 1;
+      }
+      let options = { sort: { sort: -1 }, skip: index, limit: Number(limit) };
       const result = await ctx.model.Category.findOne({
         code: classifyCode,
         isDelete: 0,
         status: 1,
       }).populate({
         path: 'content',
-        options: { sort: { sort: -1 } },
-        //   select:''
+        match, // 过滤
+        //   select: '', // 筛选需要返回的字段
+        options,
       });
       if (!result) {
         ctx.helper.fail({ ctx, code: 500, res: '未找到该分类' });
@@ -345,5 +356,37 @@ class contentService extends Service {
       ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
     }
   }
+  //   /**
+  //    * 根据分类CODE查询关联的文章列表-分页
+  //    */
+  //   async findContentByCodePage() {
+  //     const { ctx } = this;
+  //     const { classifyCode, page, limit } = ctx.request.query;
+  //     try {
+  //       const result = await ctx.model.Category.findOne({
+  //         code: classifyCode,
+  //         isDelete: 0,
+  //         status: 1,
+  //       }).populate({
+  //         path: 'content',
+  //         match: { status: 1, isDelete: 0 }, // 过滤
+  //         //   select: '', // 筛选需要返回的字段
+  //         options: { sort: { sort: -1 } },
+  //       });
+  //       if (!result) {
+  //         ctx.helper.fail({ ctx, code: 500, res: '未找到该分类' });
+  //         return;
+  //       }
+  //       ctx.helper.success({
+  //         ctx,
+  //         code: 200,
+  //         res: result,
+  //       });
+  //     } catch (err) {
+  //       // ctx.logger.error(err);
+  //       console.log(123, err);
+  //       ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+  //     }
+  //   }
 }
 module.exports = contentService;

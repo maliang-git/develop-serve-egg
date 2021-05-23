@@ -8,11 +8,14 @@ module.exports = (app) => {
   const Schema = mongoose.Schema;
   const categorySchema = new Schema({
     name: { type: String }, // 分类名称
+    enName: { type: String }, // 英文名称
     code: { type: String }, // 分类编码
     picUrl: { type: String }, // 分类图片
     sort: { type: Number }, // 排序 （越小越靠前）
     status: { type: Number, default: 1 }, // 状态 （1，启用 0，禁用）
     remark: { type: String }, // 备注描述
+    isTop: { type: Number }, // 是否置顶  1，置顶 0，不置顶
+    isRecommend: { type: Number }, // 是否推荐 1，推荐 0，不推荐
     createdTime: { type: String }, // 创建时间
     createdBy: { type: String }, // 创建人
     updateTime: { type: String }, // 更新时间

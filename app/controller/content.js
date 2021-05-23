@@ -117,6 +117,7 @@ class contentController extends Controller {
       baseReadNum: { type: 'integer', required: true }, // 基础阅读量
       realReadNum: { type: 'integer', required: false }, // 真实阅读量
       totalReadNum: { type: 'integer', required: false }, // 总阅读量
+      status: { type: 'integer', required: false }, // 是否发布 （1，发布 0，不发布）
       isTop: { type: 'integer', required: true }, // 是否置顶 （1，置顶 0，不置顶）
       isRecommend: { type: 'integer', required: true }, // 是否推荐 （1，推荐 0，不推荐）
       sort: { type: 'integer', required: true }, // 排序 越大越靠前

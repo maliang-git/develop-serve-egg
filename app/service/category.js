@@ -161,6 +161,9 @@ class ClassifyService extends Service {
         {
           $set: {
             name: params.name,
+            enName: params.enName,
+            isTop: params.isTop,
+            isRecommend: params.isRecommend,
             code: params.code,
             picUrl: params.picUrl,
             sort: params.sort,
@@ -318,6 +321,65 @@ class ClassifyService extends Service {
         ctx,
         code: 200,
         res: categoryList,
+      });
+      return;
+    } catch (err) {
+      console.log(132, err);
+      // ctx.logger.error(err);
+      ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+    }
+  }
+  /**
+   * 根据分类CODE查询直接子级列表-分页
+   */
+  async findCategoryByCodePage() {
+    const { ctx } = this;
+    let { classifyCode, isReturnContent, isRecommend, isTop } =
+      ctx.request.query;
+    try {
+      let parent = await ctx.model.Category.findOne({
+        code: classifyCode,
+        isDelete: 0,
+        status: 1,
+      });
+      if (!parent) {
+        ctx.helper.fail({ ctx, code: 422, res: '未找到该分类' });
+        return;
+      }
+      let filtersData = {
+        isDelete: 0,
+        status: 1,
+      };
+      if (isRecommend == 1) {
+        filtersData.isRecommend = 1;
+      }
+      if (isTop == 1) {
+        filtersData.isTop = 1;
+      }
+      let populate = '';
+      if (isReturnContent == 1) {
+        populate = {
+          path: 'content',
+          match: { status: 1, isDelete: 0, isTop: 1 }, // 过滤
+          //   select: '', // 筛选需要返回的字段
+          options: { sort: { sort: -1 } },
+        };
+      }
+      console.log(99, filtersData);
+      // 查询parent下直接子级
+      const children = await parent.getImmediateChildren(
+        filtersData,
+        {},
+        {
+          sort: { sort: -1 },
+          populate,
+        }
+      );
+      parent.children = children;
+      ctx.helper.success({
+        ctx,
+        code: 200,
+        res: parent,
       });
       return;
     } catch (err) {
