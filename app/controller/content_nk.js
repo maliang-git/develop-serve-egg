@@ -31,17 +31,29 @@ class NkContentController extends Controller {
       ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
     }
   }
-  //   /**
-  //    * 查询所有状态的导航-非树形
-  //    */
-  //   @Get('/v1/find_all_menu.do')
-  //   async findAllMenu() {
-  //     const { ctx, service } = this;
-  //     try {
-  //       await service.menu.findAllMenu();
-  //     } catch (error) {
-  //       ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
-  //     }
-  //   }
+  /**
+   * 根据分类code查询内容列表
+   */
+  @Get('/v1/find_content_by_category_code.do')
+  async findContentByCategoryCode() {
+    const { ctx, service, app } = this;
+    try {
+      // 定义参数校验规则
+      const rules = {
+        classifyCode: { type: 'string', required: true },
+      };
+      // 参数校验
+      const valiErrors = app.validator.validate(rules, ctx.request.query);
+      // 参数校验未通过
+      if (valiErrors) {
+        ctx.helper.fail({ ctx, code: 422, res: valiErrors });
+        return;
+      }
+      await service.content.findContentByCategoryCode();
+    } catch (error) {
+      console.log('controller', error);
+      ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+    }
+  }
 }
 module.exports = NkContentController;

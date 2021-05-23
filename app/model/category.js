@@ -18,6 +18,13 @@ module.exports = (app) => {
     updateTime: { type: String }, // 更新时间
     updateBy: { type: String }, // 更新人
     isDelete: { type: Number, default: 0 }, // 是否已删除 （1：是 0：否）
+    content: [
+      {
+        // 关联文章
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Content',
+      },
+    ],
   });
   categorySchema.plugin(MpathPlugin);
   return mongoose.model('Category', categorySchema, 'category'); //返回model

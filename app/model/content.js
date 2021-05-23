@@ -7,6 +7,9 @@ module.exports = (app) => {
   const Schema = mongoose.Schema;
   const contentSchema = new Schema({
     classifyId: {
+      type: String,
+    },
+    category: {
       // 关联分类
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',

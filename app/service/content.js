@@ -52,7 +52,12 @@ class contentService extends Service {
         new Date(),
         'yyyy-MM-dd hh:mm:ss'
       );
-      await ctx.model.Content.create(ctx.request.body); // 插入一条
+      ctx.request.body.category = ctx.request.body.classifyId;
+      const newContent = await ctx.model.Content.create(ctx.request.body); // 插入一条
+      // 使分类关联内容
+      await ctx.model.Category.findByIdAndUpdate(ctx.request.body.classifyId, {
+        $addToSet: { content: newContent._id },
+      });
       ctx.helper.success({
         ctx,
         code: 200,
@@ -68,14 +73,14 @@ class contentService extends Service {
    */
   async findContentPage() {
     const { ctx } = this;
-    const { page, limit, classifyCode, status, name } = ctx.request.query;
+    const { page, limit, classifyId, status, name } = ctx.request.query;
     try {
       const index = (page - 1) * limit;
       let term = {
         isDelete: { $ne: 1 },
       };
-      if (classifyCode) {
-        term.classifyCode = { $eq: classifyCode };
+      if (classifyId) {
+        term.classifyId = { $eq: classifyId };
       }
       if (status) {
         term.status = { $eq: status };
@@ -83,12 +88,14 @@ class contentService extends Service {
       if (name) {
         term.name = { $regex: name };
       }
+      console.log(99, term);
       // 分页、条件查询
       const result = await ctx.model.Content.find(term)
         .populate({
-          path: 'classifyId',
+          path: 'category',
           select: 'name code _id path',
         })
+        .sort({ sort: -1 })
         .skip(index)
         .limit(Number(limit));
       // 根据条件查询总数
@@ -120,7 +127,7 @@ class contentService extends Service {
         _id,
         isDelete: 0,
       }).populate({
-        path: 'classifyId',
+        path: 'category',
         select: 'name code _id path',
       });
       if (result) {
@@ -193,8 +200,7 @@ class contentService extends Service {
       );
       await ctx.model.Content.findByIdAndUpdate(reqData._id, {
         $set: {
-          classifyCode: reqData.classifyCode,
-          classifyName: reqData.classifyName,
+          category: reqData.classifyId,
           classifyId: reqData.classifyId,
           codeType: reqData.codeType,
           contentCode: reqData.contentCode,
@@ -295,6 +301,37 @@ class contentService extends Service {
       });
       if (!result) {
         ctx.helper.fail({ ctx, code: 500, res: '未找到该内容' });
+        return;
+      }
+      ctx.helper.success({
+        ctx,
+        code: 200,
+        res: result,
+      });
+    } catch (err) {
+      // ctx.logger.error(err);
+      console.log(123, err);
+      ctx.helper.fail({ ctx, code: 500, res: '后端接口异常！' });
+    }
+  }
+  /**
+   * 根据分类code查询内容列表
+   */
+  async findContentByCategoryCode() {
+    const { ctx } = this;
+    const { classifyCode } = ctx.request.query;
+    try {
+      const result = await ctx.model.Category.findOne({
+        code: classifyCode,
+        isDelete: 0,
+        status: 1,
+      }).populate({
+        path: 'content',
+        options: { sort: { sort: -1 } },
+        //   select:''
+      });
+      if (!result) {
+        ctx.helper.fail({ ctx, code: 500, res: '未找到该分类' });
         return;
       }
       ctx.helper.success({

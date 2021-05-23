@@ -54,7 +54,7 @@ class contentController extends Controller {
     const rules = {
       page: { type: 'string', required: true }, // 当前页
       limit: { type: 'string', required: true }, // 每页条数
-      classifyCode: { type: 'string', required: false }, // 分类CODE
+      classifyId: { type: 'string', required: false }, // 分类ID
       status: { type: 'string', required: false },
       name: { type: 'string', required: false },
     };
