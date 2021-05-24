@@ -334,7 +334,7 @@ class ClassifyService extends Service {
    */
   async findCategoryByCodePage() {
     const { ctx } = this;
-    let { classifyCode, isReturnContent, isRecommend, isTop } =
+    let { classifyCode, isReturnContent, isRecommend, isTop, page, limit } =
       ctx.request.query;
     try {
       let parent = await ctx.model.Category.findOne({
@@ -365,21 +365,39 @@ class ClassifyService extends Service {
           options: { sort: { sort: -1 } },
         };
       }
-      console.log(99, filtersData);
+      let childsOptions = {
+        sort: { sort: -1 },
+        populate,
+      };
+      if (page && limit) {
+        const index = (page - 1) * limit;
+        childsOptions.skip = index;
+        childsOptions.limit = limit;
+      }
       // 查询parent下直接子级
       const children = await parent.getImmediateChildren(
         filtersData,
         {},
-        {
-          sort: { sort: -1 },
-          populate,
-        }
+        childsOptions
       );
-      parent.children = children;
+      // 获取总数
+      const total = await parent
+        .getImmediateChildren(
+          filtersData,
+          {},
+          {
+            sort: { sort: -1 },
+          }
+        )
+        .countDocuments();
+      let newParent = JSON.parse(JSON.stringify(parent));
+      newParent.children = children;
+      newParent.total = total;
+      console.log(99, newParent);
       ctx.helper.success({
         ctx,
         code: 200,
-        res: parent,
+        res: newParent,
       });
       return;
     } catch (err) {

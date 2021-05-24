@@ -18,6 +18,8 @@ class NkCategoryController extends Controller {
       isReturnContent: { type: 'string', required: false }, // 是否返回子级关联的文章(默认不返回 1:返回 0:不返回)
       isRecommend: { type: 'string', required: false }, // 筛选推荐的分类(默认不筛选 1:赛选 0:不筛选)
       isTop: { type: 'string', required: false }, // 筛选置顶的分类(默认不筛选 1:赛选 0:不筛选)
+      page: { type: 'string', required: false },
+      limit: { type: 'string', required: false },
     };
     // 参数校验
     const valiErrors = app.validator.validate(rules, ctx.request.query);
